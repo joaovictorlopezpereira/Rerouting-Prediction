@@ -1,0 +1,113 @@
+ %->8-----------Language-and-Document-Related-Packages----------8<-%
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%->8------------------------------------------------------------8<-%
+
+%->8-----------------Formatting-Related-Packages----------------8<-%
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm, cancel}
+\usepackage{upquote}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{xcolor}
+%->8------------------------------------------------------------8<-%
+
+%->8----------Referencing-and-Figures-Related-Packages----------8<-%
+\usepackage{tocloft}
+\usepackage{csquotes}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[backend=biber]{biblatex}
+\usepackage{hyperref}
+\usepackage[portuguese]{todonotes}
+%->8------------------------------------------------------------8<-%
+
+%->8----------------Formatting-Related--Commands----------------8<-%
+\setlength{\parskip}{\baselineskip}
+\setlength{\footnotesep}{0.8em}
+\setlength{\skip\footins}{2em}
+\setlength{\cftbeforechapskip}{12pt}
+\setlength{\cftbeforesecskip}{6pt}
+\setlength{\marginparwidth}{2cm}
+%->8------------------------------------------------------------8<-%
+
+%->8--------------Referencing-and-Figures-Commands--------------8<-%
+\addbibresource{repertoire.bib}
+\graphicspath{{figures/}}
+%->8------------------------------------------------------------8<-%
+
+%->8--------------------Math-Related-Commands-------------------8<-%
+\newtheorem{property}{Propriedade}[section]
+\newtheorem{theorem}{Teorema}[section]
+\newtheorem{corollary}{Corolário}[section]
+\newtheorem{definition}{Definição}[section]
+\renewenvironment{proof}{\vspace{-0.45cm}\noindent\textbf{Demonstração. }}{\hfill $\square$ \vspace{0.7cm}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\fnorm}[1]{\left\lVert#1\right\rVert_\text{F}}
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+\newcommand{\dotprod}[1]{\left\langle#1\right\rangle}
+\newcommand{\proj}[2]{\text{proj}_{#1}(#2)}
+\renewcommand{\min}[1]{\text{min}_{#1}\,\,}
+\newcommand{\argmin}[1]{\text{argmin}_{#1}\,\,}
+\newcommand{\argmax}[1]{\text{argmax}_{#1}\,\,}
+\newcommand{\mul}{\cdot}
+\newcommand{\grad}[1]{\nabla_{#1}}
+\renewcommand{\deg}{\ensuremath{^\circ}}
+\newenvironment{jmatrix}{\begin{bmatrix}}{\end{bmatrix}}
+\newcommand{\union}{\cup}
+\newcommand{\intersec}{\cap}
+\newcommand{\bigunion}{\bigcup}
+\newcommand{\bigintersec}{\bigcap}
+\newcommand{\rep}{\text{rep}}
+\renewcommand{\t}{^{\mathsf{T}\mkern-1mu}}
+\renewcommand{\det}[1]{\text{det}\left( #1 \right)}
+\renewcommand{\gets}{\leftarrow}
+%->8------------------------------------------------------------8<-%
+
+%->8---------------------Code-Related-Macros--------------------8<-%
+\lstnewenvironment{code}[1][]{
+  \lstset{
+    basicstyle=\ttfamily,
+    columns=flexible,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=none,
+    basewidth=0.5em,
+    aboveskip=13pt,
+    belowskip=0pt,
+    #1
+  }
+}{}
+\lstnewenvironment{styledoutput}[1][]{
+  \lstset{
+    basicstyle=\ttfamily\itshape,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=none,
+    aboveskip=0pt,
+    #1
+  }
+}{}
+\newcommand{\userinput}[1]{\noindent\texttt{\textit{>}}\texttt{#1}}
+\newcommand{\useroutput}[1]{\textit{\texttt{#1}}}
+\newcommand{\var}[1]{\texttt{#1}}
+%->8------------------------------------------------------------8<-%
+
+%->8------------------Formatting-Related-Macros-----------------8<-%
+\newcommand{\excerpt}[4]{ %{phrase}{author}{font}{cite}
+  \vspace{25pt}
+  \begin{quote}
+    \begin{center}
+      \hfill
+      \begin{minipage}{0.65\textwidth}
+        #1 \\[10pt] #2, \textit{#3}#4
+      \end{minipage}
+    \end{center}
+  \end{quote}
+  \vspace{25pt}
+}
+\newcommand{\excerptinfn}[4]{\textit{``#1''} #2, \textit{#3}#4}
+\newcommand{\joaovictor}[1]{\todo[textcolor=black, color=blue!20, fancyline, inline]{\textcolor[rgb]{0.5,0.0,0.5}{João Victor}: #1}}
+\newcommand{\nonport}[1]{\textit{#1}}
+%->8------------------------------------------------------------8<-%
