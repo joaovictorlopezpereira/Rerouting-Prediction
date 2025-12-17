@@ -1,2 +1,5 @@
 # Latex Temporary Files
 */temp-files
+
+# Dataset format
+*.csv
