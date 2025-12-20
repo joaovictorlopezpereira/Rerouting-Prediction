@@ -110,7 +110,7 @@ Optamos por analisar esses modelos pois são com os quais temos maior afinidade.
 \section*{Testes Realizados e Resultados Obtidos}
 \addcontentsline{toc}{chapter}{Testes Realizados e Resultados Obtidos}
 
-Rodamos o \textit{K-fold} com \textit{cross-validation} com $101$ repetições e $10$ folds, obtendo os seguintes resultados para acurácia e f1-score:
+Rodamos o \textit{K-fold} com \textit{cross-validation} com $101$ repetições e $10$ folds, obtendo os seguintes resultados para acurácia e \textit{f1-score}:
 
 \begin{verbatim}
 KNN Accuracy: 0.5357 ± 0.0028
@@ -137,7 +137,7 @@ XGBoost f1-score: 0.5281 ± 0.0044
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{f1-score.png}
-  \caption{F1-score obtido pelos modelos utilizados.}
+  \caption{\textit{F1-score} obtido pelos modelos utilizados.}
 \end{figure}
 
 Pelos histogramas exibidos, percebemos uma certa diferença de performance entre os modelos. No que diz respeito à acurácia dos modelos em suas 101 execuções de \textit{K-folds}, há uma aparente tendência de medidas no intervalo de $0.5$ a $0.54$, com o KNN possuindo melhores métricas no geral. Com relação às distribuições de \textit{f1-score}, existe uma clara disparidade do modelo de Perceptron com relação aos demais, com uma média de $0.1924$ e variância relativamente alta comparado às observadas nos outros modelos. Há uma evidente aglomeração das amostras de \textit{f1-score} dos demais modelos um pouco acima da marca $0.5$. Uma inspeção breve da listagem de médias e variâncias revela que o modelo de KNN é robusto frente aos outros, com uma média levemente superior de $0.541$ e variância $0.003$ (a segunda mais baixa).
