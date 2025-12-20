@@ -1,3 +1,141 @@
 
+\section*{Limpeza dos Dados}
+\addcontentsline{toc}{chapter}{Limpeza dos Dados}
+
+Inicialmente, decidimos pela remoção das colunas \texttt{tr\_id} e \texttt{tr\_attempts}.
+
+Acreditamos que manter a coluna \texttt{tr\_id} fará com que o modelo tente aprender a julgar uma possível mudança de rota dado o \textit{id} do \textit{Traceroute}, que evidentemente prejudicaria o modelo dado que esse \textit{id} não tem significado relevante no contexto de predição.
+
+A respeito do atributo \texttt{tr\_attempts}, decidimos por não o utilizá-lo pois essa coluna apresenta valor constante (igual a $3$) no \textit{dataset} original, fazendo com que seu uso não agregue informações para o modelo.
+
+Em seguida, para garantir a integridade do \textit{dataset}, removemos as linhas que tinham valores nulos em algum de seus atributos.
+
+
+\section*{Técnicas de Amostragem}
+\addcontentsline{toc}{chapter}{Técnicas de Amostragem}
+
+O \textit{dataset} utilizado contém cerca de $20$ milhões de entradas, o que é inviável para utilização no treinamentos dos modelos de aprendizado de máquina em computadores mais comuns. Portanto, decidimos realizar diferentes técnicas de amostragem para utilizarmos uma porção menor da base de dados --- cujo uso para o treinamento dos modelos é viável.
+
+Abaixo encontram-se as funções que utilizamos e suas finalidades:
+
+\begin{enumerate}
+  \item \texttt{cut\_dataset}: Remove duplicatas e retorna uma amostra fracionada do \textit{dataset};
+
+  \item \texttt{balance\_dataset}: Realiza balanceamento de classes (baseado na coluna alvo, nesse caso: \texttt{route\_changed}). A função identifica a classe majoritária e realiza \textit{downsampling} para igualar a quantidade da classe minoritária (multiplicada por um fator);
+
+  \item \texttt{cut\_pairs}: Filtra o \textit{dataset} mantendo apenas uma fração dos pares únicos de origem/destino (\texttt{tr\_src}, \texttt{tr\_dst});
+
+  \item \texttt{trim\_excess\_data\_pairwise}: Reduz a quantidade de dados por par de origem/destino. Para cada par, os dados são ordenados temporalmente. Se houver uma quantidade maior ou igual a $k$ de registros, o código seleciona uma ``janela'' contígua e aleatória de tamanho $k$ dentro desse histórico, descartando o restante.
+\end{enumerate}
+
+Abaixo, analisamos os problemas de cada uma dessas técnicas:
+
+\begin{enumerate}
+  \item \texttt{cut\_dataset}: Essa técnica, por realizar um corte bruto desregrado no \textit{dataset}, resolve o problema de desempenho por sobrar uma quantidade menor de amostras, porém, o \textit{dataset} se mantém extremamente desbalanceado em relação ao atributo \textit{target};
+
+  \item \texttt{balance\_dataset}: Essa técnica, diferente da anterior, resulta em um \textit{dataset} balanceado, porém, por selecionar amostras do \textit{dataset} original de maneira totalmente aleatória, faz com que a interrelação temporal entre as amostras seja perdida;
+
+  \item \texttt{cut\_pairs}: Essa técnica, assim como a primeira, resulta em um \textit{dataset} desbalanceado. Além disso, ela seleciona uma fração dos pares de origem/destino e retorna um \textit{dataset} com todas as suas ocorrências. O problema é que a quantidade de amostras para cada par de origem/destino é extremamente desigual, ocasionando um \textit{dataset} com um quantidade de amostras imprevisível;
+
+  \item \texttt{trim\_excess\_data\_pairwise}: Essa técnica individualmente contém o problema de desbalanceamento, porém, ao utilizá-la em conjunto da \texttt{balance\_dataset}, obtivemos um \textit{dataset} balanceado e que mantém a interrelação temporal entre as amostras.
+\end{enumerate}
+
+Portanto, escolhemos seguir adiante com o método \texttt{trim\_excess\_data\_pairwise} (seguido do \texttt{balance\_dataset}) dado os problemas das outras abordagens.
+
+
+\section*{Transformação dos Dados}
+\addcontentsline{toc}{chapter}{Transformação dos Dados}
+
+\subsection*{Codificação do Atributo \texttt{all\_rtts}}
+\addcontentsline{toc}{section}{Codificação do Atributo \texttt{all\_rtts}}
+
+O atributo \texttt{all\_rtts} originalmente assumia como valor uma \textit{string} que representa uma lista das medições de \textit{RTT} para cada um dos \textit{probes} enviados. Como os modelos não conseguem manipular o dado nesse formato de \textit{string}, optamos por criar duas novas colunas, uma que contém como valor a média das medições de \textit{RTT} e outra com o desvio padrão.
+
+\subsection*{Criação do Atributo \texttt{relative\_dropped\_probes}}
+\addcontentsline{toc}{section}{Criação do Atributo \texttt{relative\_dropped\_probes}}
+
+Os atributos \texttt{total\_probes\_sent} e \texttt{total\_replies\_last\_hop} contêm, respectivamente, a quantidade de \textit{probes} enviados e a quantidade de respostas recebidas do último \textit{hop}. Acreditamos que esses valores --- em sua forma absoluta --- são menos descritivos do que um indicador de perda relativo, já que, por exemplo, a perda de $1$ pacote de um total de $100$ pacotes enviados é bem menos significativa do que a mesma perda de um total de $2$ pacotes enviados. Decidimos, portanto, criar um atributo \texttt{total\_probes\_sent} que guarda o percentual de pacotes perdidos.
+
+\subsection*{Janela Deslizante}
+\addcontentsline{toc}{section}{Janela Deslizante}
+
+Para incorporar as informações que dependem do histórico de reroteamento ao modelo, implementamos a técnica da Janela Deslizante, que consiste em mudar o formato das entradas do \textit{dataset} para que cada linha passe a conter o conteúdo de duas medições consecutivas. Essa técnica não ocasiona o aumento do número de amostras, fazendo com que o número de entradas dos modelos não seja afetado de maneira substancial.
+
+
+\section*{Matriz de Correlação}
+\addcontentsline{toc}{chapter}{Matriz de Correlação}
+
+Em seguida, decidimos visualizar as matrizes de correção de Pearson e Spearman para verificarmos quais atributos apresentam uma alta correlação entre si e com a variável \textit{target}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{pearson_matrix.png}
+  \caption{Matriz de Correlação de Pearson.}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{spearman_matrix.png}
+  \caption{Matriz de Correlação de Spearman.}
+\end{figure}
+
+Em ambas as matrizes, observamos uma correlação de $1$ entre os atributos \texttt{seconds\_since\_start} e \texttt{date\_index}, então decidimos não trabalhar com um deles.
+
+Além disso, chegamos a conclusão que seria benéfico remover ambas essas colunas pois acreditamos que o instante do tempo onde o \textit{Traceroute} foi efetuado não é determinante no fato de ter havido mudança de rota, mas sim a condição corrente da rede.
+
+Por fim, decimos não trabalhar com a variável derivada \texttt{relative\_dropped\_probes} por ela haver uma baixa correlação com a variável \textit{target}.
+
+
+\section*{Escolha dos Modelos}
+\addcontentsline{toc}{chapter}{Escolha dos Modelos}
+
+Escolhemos como modelos:
+
+\begin{enumerate}
+  \item Perceptron, com número máximo de iterações $2000$ e tolerância de $10^{-3}$;
+  \item KNN, com $7$ vizinhos;
+  \item Regressão Logística, com número máximo de iterações $5000$;
+  \item XGBoost, com número de estimadores $100$, profundidade máxima $8$ e taxa de aprendizado $0.1$;
+  \item Árvore de Decisão, com profundade máxima de $12$.
+\end{enumerate}
+
+Optamos por escolher esses modelos pois são os quais temos maior afinidade.
+
+
+\section*{Testes Realizados e Resultados Obtidos}
+\addcontentsline{toc}{chapter}{Testes Realizados e Resultados Obtidos}
+
+Rodamos o \textit{K-fold} com \textit{cross-validation} com $101$ repetições e $10$ folds, obtendo os seguintes resultados para acurácia e f1-score:
+
+\begin{verbatim}
+KNN Accuracy: 0.5357 ± 0.0028
+Logistic Regression Accuracy: 0.5117 ± 0.0020
+Perceptron Accuracy: 0.5004 ± 0.0028
+Decision Tree Accuracy: 0.5159 ± 0.0047
+XGBoost Accuracy: 0.5188 ± 0.0038
+\end{verbatim}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{accuracy.png}
+  \caption{Acurácia obtida pelos modelos utilizados.}
+\end{figure}
+
+\begin{verbatim}
+KNN f1-score: 0.5410 ± 0.0030
+Logistic Regression f1-score: 0.5038 ± 0.0026
+Perceptron f1-score: 0.1924 ± 0.0734
+Decision Tree f1-score: 0.5337 ± 0.0087
+XGBoost f1-score: 0.5281 ± 0.0044
+\end{verbatim}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{f1-score.png}
+  \caption{F1-score obtido pelos modelos utilizados.}
+\end{figure}
+
+Pelos resultados obtidos, observamos que o KNN apresentou resultado robusto frente aos demais modelos.
+
 
 
